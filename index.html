@@ -125,9 +125,9 @@
     <!-- CUERPO PRINCIPAL -->
     <main class="px-4 -mt-3 z-10 flex-1 space-y-4">
 
-      <!-- TARJETA DE LÍMITE MENSUAL (BARRA DE PROGRESO CON ALERTA ROJA Y MODO CATEGORÍAS) -->
+      <!-- TARJETA DE LÍMITE MENSUAL (BARRA CON SELECTOR VISIBLE Y ALERTA ROJA) -->
       <section id="limitSection" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all duration-300">
-        <div class="flex justify-between items-center mb-1.5">
+        <div class="flex justify-between items-center mb-2.5">
           <div class="flex items-center space-x-1.5">
             <span class="text-sm font-bold text-slate-800">Límite Mensual</span>
             <button onclick="openLimitModal()" class="text-slate-400 hover:text-[#ED6D00] p-1 transition" title="Configurar límite">
@@ -136,30 +136,36 @@
               </svg>
             </button>
           </div>
-          
-          <div class="flex items-center space-x-2">
-            <!-- Botón para alternar barra consolidada vs categorías -->
-            <button onclick="toggleBarMode()" id="btnToggleBarMode" class="text-[11px] font-bold text-slate-600 bg-slate-100 hover:bg-orange-50 hover:text-[#ED6D00] px-2 py-0.5 rounded-lg border border-slate-200 transition flex items-center space-x-1">
-              <span id="barModeIcon">📊</span>
-              <span id="barModeText">Ver categorías</span>
-            </button>
-            <span id="limitBudgetLabel" class="text-xs font-bold text-slate-600">$ 400.000</span>
-          </div>
+          <span id="limitBudgetLabel" class="text-xs font-black text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">$ 400.000</span>
         </div>
 
-        <!-- Indicador de abonos contrarrestando gastos -->
-        <div id="limitDiscountNote" class="hidden mb-2 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg flex items-center justify-between">
-          <span>↓ Abonos de terceros reducen consumo</span>
-          <span id="limitDiscountAmount" class="font-bold">-$ 0</span>
+        <!-- SELECTOR CLARO Y VISIBLE: BARRA TOTAL VS CATEGORÍAS -->
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl mb-3 text-xs">
+          <button type="button" id="tabBarNormal" onclick="setBarMode('normal')" 
+            class="py-1.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-slate-900 border border-slate-200/80">
+            <span>🟩</span>
+            <span>Barra General</span>
+          </button>
+          <button type="button" id="tabBarCategories" onclick="setBarMode('categories')" 
+            class="py-1.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition">
+            <span>📊</span>
+            <span>Por Categorías</span>
+          </button>
         </div>
 
-        <!-- Barra de Progreso (Contenedor que soporta barra sólida o segmentada por categorías) -->
-        <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200 flex" id="limitProgressBarContainer">
+        <!-- Indicador de abonos/devoluciones contrarrestando gastos -->
+        <div id="limitDiscountNote" class="hidden mb-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center justify-between">
+          <span>🤝 Devoluciones recibidas reducen consumo:</span>
+          <span id="limitDiscountAmount" class="font-black text-emerald-800">-$ 0</span>
+        </div>
+
+        <!-- Barra de Progreso (Sólida o por Categorías) -->
+        <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden p-0.5 border border-slate-200 flex" id="limitProgressBarContainer">
           <div id="limitProgressBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
         </div>
 
         <!-- Leyenda de categorías (Solo visible en modo categorías) -->
-        <div id="limitCategoryLegend" class="hidden mt-2 pt-2 border-t border-slate-100 flex flex-wrap gap-1.5 text-[10px]">
+        <div id="limitCategoryLegend" class="hidden mt-2.5 pt-2 border-t border-slate-100 flex flex-wrap gap-1.5 text-[10px]">
           <!-- Se llena dinámicamente -->
         </div>
 
@@ -204,24 +210,24 @@
         <form id="quickTransactionForm" onsubmit="handleQuickSubmit(event)" class="space-y-3">
           <!-- Toggle Gasto vs Ingreso -->
           <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
-            <button type="button" id="btnTypeGasto" onclick="setType('gasto')" class="py-2 rounded-lg font-bold text-xs flex items-center justify-center space-x-1 transition shadow bg-white text-rose-600">
+            <button type="button" id="btnTypeGasto" onclick="setType('gasto')" class="py-2.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-rose-600">
               <span>↑ Gasto</span>
             </button>
-            <button type="button" id="btnTypeIngreso" onclick="setType('ingreso')" class="py-2 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1 text-slate-500 hover:text-slate-800 transition">
+            <button type="button" id="btnTypeIngreso" onclick="setType('ingreso')" class="py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition">
               <span>↓ Ingreso</span>
             </button>
           </div>
 
-          <!-- Checkbox Abono de Tercero (Solo visible cuando se selecciona Ingreso) -->
-          <div id="thirdPartyAbonoBox" class="hidden p-2.5 bg-orange-50 border border-orange-200 rounded-xl transition">
+          <!-- CASILLA ESPECIAL APARTE: DEVOLUCIÓN FAMILIAR / AMIGO (Solo visible en Ingreso) -->
+          <div id="refundOptionCard" class="hidden p-3 bg-emerald-50/90 border-2 border-emerald-300 rounded-xl space-y-1 transition">
             <label class="flex items-start space-x-2.5 cursor-pointer">
-              <input type="checkbox" id="checkThirdPartyAbono" checked class="mt-0.5 w-4 h-4 text-[#ED6D00] rounded focus:ring-orange-500 border-slate-300">
+              <input type="checkbox" id="checkRefundFriend" checked class="mt-0.5 w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 border-slate-300">
               <div>
-                <span class="text-xs font-bold text-slate-800 flex items-center space-x-1">
-                  <span>🤝 Abono de un tercero / Mesada</span>
+                <span class="text-xs font-black text-emerald-900 flex items-center space-x-1">
+                  <span>🤝 Devolución familiar / amigo</span>
                 </span>
-                <span class="text-[10px] text-slate-500 block leading-tight mt-0.5">
-                  Marca esta casilla si alguien te transfirió su parte o te dieron una mesada para que <strong>la barrita verde retroceda</strong> y te libere cupo de gasto.
+                <span class="text-[11px] text-emerald-700 block leading-tight mt-0.5 font-medium">
+                  Marca esta casilla para que <strong>la barrita verde retroceda</strong>. Luego puedes elegir la categoría real abajo (ej: Ocio, Comida, etc.).
                 </span>
               </div>
             </label>
@@ -238,51 +244,56 @@
             </div>
           </div>
 
-          <!-- Mini Calculadora: Dividir Cuenta (Split Bill) - Solo visible en Gasto -->
-          <div id="splitBillToggleContainer">
-            <button type="button" onclick="toggleSplitBill()" id="btnToggleSplit" class="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between transition">
-              <span class="flex items-center space-x-1.5">
-                <span>👥</span>
-                <span>Dividir cuenta con amigos (Split Bill)</span>
-              </span>
-              <span id="splitToggleIcon" class="text-slate-400 font-bold text-sm">+</span>
-            </button>
-          </div>
-
-          <!-- Sección Expandible de Split Bill -->
-          <div id="splitBillSection" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 transition">
-            <div class="flex justify-between items-center text-xs">
-              <label class="font-bold text-slate-700">¿Entre cuántos dividen?</label>
-              <div class="flex items-center space-x-1.5">
-                <button type="button" onclick="adjustSplitPeople(-1)" class="w-6 h-6 bg-white border border-slate-300 rounded font-bold text-slate-700 flex items-center justify-center active:scale-95">-</button>
-                <span id="splitPeopleCount" class="font-extrabold text-sm text-slate-900 w-5 text-center">2</span>
-                <button type="button" onclick="adjustSplitPeople(1)" class="w-6 h-6 bg-white border border-slate-300 rounded font-bold text-slate-700 flex items-center justify-center active:scale-95">+</button>
-                <span class="text-slate-400 text-[11px] pl-1">personas</span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 bg-white p-2.5 rounded-lg border border-slate-200 text-xs">
-              <div>
-                <span class="text-[10px] text-slate-400 block font-semibold">Tu parte real</span>
-                <span id="splitMyShareDisplay" class="font-bold text-emerald-600 text-sm">$ 0</span>
-              </div>
-              <div>
-                <span class="text-[10px] text-slate-400 block font-semibold">Te deben amigos</span>
-                <span id="splitPendingDisplay" class="font-bold text-orange-600 text-sm">$ 0</span>
-              </div>
-            </div>
-
-            <label class="flex items-center space-x-2 cursor-pointer pt-0.5">
-              <input type="checkbox" id="checkRecordSplitPending" checked class="w-3.5 h-3.5 text-[#ED6D00] rounded focus:ring-orange-500 border-slate-300">
-              <span class="text-[11px] font-semibold text-slate-600">Guardar recordatorio de cobro pendiente</span>
-            </label>
-          </div>
-
           <!-- Input Asunto / Detalle -->
           <div>
             <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Asunto / Descripción</label>
-            <input type="text" id="descInput" placeholder="Ej: Supermercado, Almuerzo, Bencina..." required
+            <input type="text" id="descInput" placeholder="Ej: Salida con amigos, Almuerzo, Supermercado..." required
               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#ED6D00] focus:bg-white transition">
+          </div>
+
+          <!-- CAJA DESTACADA: DIVIDIR CUENTA (SPLIT BILL) - Solo visible en Gasto -->
+          <div id="splitBillContainer" class="p-3 bg-purple-50/80 border border-purple-200 rounded-xl space-y-2">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSplitBill()">
+              <div class="flex items-center space-x-2">
+                <span class="text-lg">👥</span>
+                <div>
+                  <span class="text-xs font-bold text-purple-900 block">¿Dividir cuenta con amigos? (Split Bill)</span>
+                  <span class="text-[10px] text-purple-600 block">Calcula cuánto te deben y guarda recordatorio</span>
+                </div>
+              </div>
+              <button type="button" id="btnSplitToggle" class="px-2.5 py-1 bg-purple-200 hover:bg-purple-300 text-purple-900 rounded-lg text-xs font-extrabold transition">
+                + Abrir
+              </button>
+            </div>
+
+            <!-- Sección Expandible cuando se activa Split Bill -->
+            <div id="splitBillSection" class="hidden pt-2.5 border-t border-purple-200/80 space-y-2.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-slate-700">Dividir cuenta total entre:</span>
+                <div class="flex items-center space-x-1.5">
+                  <button type="button" onclick="adjustSplitPeople(-1)" class="w-7 h-7 bg-white border border-slate-300 rounded-lg font-bold text-slate-800 flex items-center justify-center active:scale-95 shadow-sm">-</button>
+                  <span id="splitPeopleCount" class="font-black text-sm text-purple-900 w-6 text-center">2</span>
+                  <button type="button" onclick="adjustSplitPeople(1)" class="w-7 h-7 bg-white border border-slate-300 rounded-lg font-bold text-slate-800 flex items-center justify-center active:scale-95 shadow-sm">+</button>
+                  <span class="text-slate-500 text-xs font-medium pl-1">personas</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 bg-white p-2.5 rounded-lg border border-purple-200 text-xs shadow-sm">
+                <div>
+                  <span class="text-[10px] text-slate-400 block font-semibold">Tu parte real</span>
+                  <span id="splitMyShareDisplay" class="font-black text-emerald-600 text-sm">$ 0</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 block font-semibold">Te deben amigos</span>
+                  <span id="splitPendingDisplay" class="font-black text-purple-700 text-sm">$ 0</span>
+                </div>
+              </div>
+
+              <label class="flex items-center space-x-2 cursor-pointer pt-0.5">
+                <input type="checkbox" id="checkRecordSplitPending" checked class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 border-slate-300">
+                <span class="text-xs font-semibold text-slate-700">Dejar recordatorio de cobro pendiente</span>
+              </label>
+            </div>
           </div>
 
           <!-- Selector rápido de categorías -->
@@ -455,14 +466,12 @@
   <script>
     // 1. CONFIGURACIÓN Y ESTADO
     const CATEGORIES = [
-      { id: 'comida', label: 'Comida', icon: '🛒', color: '#F97316' },
-      { id: 'transporte', label: 'Transporte', icon: '🚌', color: '#3B82F6' },
+      { id: 'comida', label: 'Comida / Super', icon: '🛒', color: '#F97316' },
+      { id: 'transporte', label: 'Transporte / Bip', icon: '🚌', color: '#3B82F6' },
       { id: 'cuentas', label: 'Cuentas / Luz / Agua', icon: '💡', color: '#EAB308' },
       { id: 'hogar', label: 'Hogar', icon: '🏠', color: '#10B981' },
       { id: 'ocio', label: 'Ocio / Salidas', icon: '🍔', color: '#EC4899' },
       { id: 'salud', label: 'Salud / Farmacia', icon: '💊', color: '#EF4444' },
-      { id: 'split', label: 'Cuenta Dividida', icon: '👥', color: '#8B5CF6' },
-      { id: 'abono', label: 'Abono / Devolución', icon: '🤝', color: '#14B8A6' },
       { id: 'otros', label: 'Otros', icon: '📌', color: '#64748B' }
     ];
 
@@ -506,7 +515,7 @@
       return parseInt(inputVal.replace(/\D/g, ''), 10) || 0;
     }
 
-    // 2. RENDERIZADO DE CATEGORÍAS
+    // 2. RENDERIZADO DE CATEGORÍAS (SIN ABONO: AHORA ES UNA CASILLA APARTE)
     function renderCategoryPills() {
       const container = document.getElementById('categoryPills');
       container.innerHTML = CATEGORIES.map(c => `
@@ -527,27 +536,41 @@
       renderCategoryPills();
     }
 
-    // Alternar modo de la barra (Consolidada vs Categorías)
-    function toggleBarMode() {
-      barMode = barMode === 'normal' ? 'categories' : 'normal';
+    // Selector explícito y visible para el modo de la barra
+    function setBarMode(mode) {
+      barMode = mode;
       localStorage.setItem('be_bar_mode', barMode);
+
+      const tabNormal = document.getElementById('tabBarNormal');
+      const tabCat = document.getElementById('tabBarCategories');
+
+      if (tabNormal && tabCat) {
+        if (mode === 'normal') {
+          tabNormal.className = 'py-1.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-slate-900 border border-slate-200/80';
+          tabCat.className = 'py-1.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition';
+        } else {
+          tabNormal.className = 'py-1.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition';
+          tabCat.className = 'py-1.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-slate-900 border border-slate-200/80';
+        }
+      }
+
       updateDashboard();
     }
 
-    // Lógica Mini-calculadora Dividir Cuenta (Split Bill)
+    // Mini-calculadora Dividir Cuenta (Split Bill)
     function toggleSplitBill() {
       isSplitBillOpen = !isSplitBillOpen;
       const section = document.getElementById('splitBillSection');
-      const icon = document.getElementById('splitToggleIcon');
+      const btn = document.getElementById('btnSplitToggle');
       if (isSplitBillOpen) {
         section.classList.remove('hidden');
-        icon.innerText = '−';
-        selectedCategory = 'split';
-        renderCategoryPills();
+        btn.innerText = '− Cerrar';
+        btn.className = 'px-2.5 py-1 bg-purple-300 text-purple-900 rounded-lg text-xs font-black transition';
         updateSplitCalculations();
       } else {
         section.classList.add('hidden');
-        icon.innerText = '+';
+        btn.innerText = '+ Abrir';
+        btn.className = 'px-2.5 py-1 bg-purple-200 hover:bg-purple-300 text-purple-900 rounded-lg text-xs font-extrabold transition';
       }
     }
 
@@ -569,32 +592,24 @@
       currentType = type;
       const btnGasto = document.getElementById('btnTypeGasto');
       const btnIngreso = document.getElementById('btnTypeIngreso');
-      const abonoBox = document.getElementById('thirdPartyAbonoBox');
-      const splitToggleContainer = document.getElementById('splitBillToggleContainer');
+      const refundCard = document.getElementById('refundOptionCard');
+      const splitContainer = document.getElementById('splitBillContainer');
       const splitSection = document.getElementById('splitBillSection');
 
       if (type === 'gasto') {
-        btnGasto.className = 'py-2 rounded-lg font-bold text-xs flex items-center justify-center space-x-1 transition shadow bg-white text-rose-600';
-        btnIngreso.className = 'py-2 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1 text-slate-500 hover:text-slate-800 transition';
-        abonoBox.classList.add('hidden');
-        splitToggleContainer.classList.remove('hidden');
-        if (selectedCategory === 'abono') {
-          selectedCategory = 'comida';
-          renderCategoryPills();
-        }
+        btnGasto.className = 'py-2.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-rose-600';
+        btnIngreso.className = 'py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition';
+        refundCard.classList.add('hidden');
+        splitContainer.classList.remove('hidden');
       } else {
-        btnGasto.className = 'py-2 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1 text-slate-500 hover:text-slate-800 transition';
-        btnIngreso.className = 'py-2 rounded-lg font-bold text-xs flex items-center justify-center space-x-1 transition shadow bg-white text-emerald-600';
-        abonoBox.classList.remove('hidden');
-        document.getElementById('checkThirdPartyAbono').checked = true;
-        splitToggleContainer.classList.add('hidden');
+        btnGasto.className = 'py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition';
+        btnIngreso.className = 'py-2.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-emerald-600';
+        refundCard.classList.remove('hidden');
+        document.getElementById('checkRefundFriend').checked = true;
+        splitContainer.classList.add('hidden');
         splitSection.classList.add('hidden');
         isSplitBillOpen = false;
-        document.getElementById('splitToggleIcon').innerText = '+';
-        if (selectedCategory === 'comida' || selectedCategory === 'split') {
-          selectedCategory = 'abono';
-          renderCategoryPills();
-        }
+        document.getElementById('btnSplitToggle').innerText = '+ Abrir';
       }
     }
 
@@ -609,10 +624,10 @@
         return;
       }
 
-      // Información de Abono de Tercero
-      const isThirdParty = currentType === 'ingreso' && document.getElementById('checkThirdPartyAbono').checked;
+      // Casilla especial: Devolución familiar / amigo (reduce límite)
+      const isRefund = currentType === 'ingreso' && document.getElementById('checkRefundFriend').checked;
 
-      // Información de Cuenta Dividida si aplica
+      // Información de Cuenta Dividida si aplica en gasto
       let splitData = null;
       if (currentType === 'gasto' && isSplitBillOpen) {
         const myShare = Math.round(amount / splitPeopleCount);
@@ -631,8 +646,8 @@
         type: currentType,
         amount: amount,
         description: desc,
-        category: selectedCategory,
-        isThirdPartyAbono: isThirdParty,
+        category: selectedCategory, // El usuario elige la categoría real (Ocio, Comida, etc.)
+        isFamilyFriendRefund: isRefund,
         splitData: splitData,
         timestamp: new Date().toISOString()
       };
@@ -640,7 +655,7 @@
       transactions.unshift(newTx);
       saveTransactions();
 
-      // Limpiar formulario y resetear split si estaba abierto
+      // Limpiar formulario y cerrar split si estaba abierto
       document.getElementById('amountInput').value = '';
       document.getElementById('descInput').value = '';
       if (isSplitBillOpen) {
@@ -670,13 +685,13 @@
       const totalExpense = monthTx.filter(t => t.type === 'gasto').reduce((acc, t) => acc + t.amount, 0);
       const balance = totalIncome - totalExpense;
 
-      // Solo los ingresos marcados explícitamente como "Abono de tercero / Mesada" reducen el límite de consumo
-      const validAbonos = monthTx
-        .filter(t => t.type === 'ingreso' && (t.isThirdPartyAbono === true || t.category === 'abono'))
+      // Solo los ingresos marcados explícitamente como "Devolución familiar / amigo" contrarrestan el límite
+      const validRefunds = monthTx
+        .filter(t => t.type === 'ingreso' && (t.isFamilyFriendRefund === true || t.isThirdPartyAbono === true || t.category === 'abono'))
         .reduce((acc, t) => acc + t.amount, 0);
 
-      // Gasto Neto para el Límite Mensual
-      const netExpense = Math.max(0, totalExpense - validAbonos);
+      // Gasto Neto para el Límite Mensual (disminuye con las devoluciones)
+      const netExpense = Math.max(0, totalExpense - validRefunds);
 
       // Actualizar tarjetas de cabecera
       document.getElementById('totalBalance').innerText = formatCLP(balance);
@@ -684,8 +699,21 @@
       document.getElementById('totalExpense').innerText = formatCLP(totalExpense);
       document.getElementById('bottomExpenseDisplay').innerText = formatCLP(netExpense);
 
-      // Actualizar Límite y Barra (Sólida o por Categorías)
-      updateLimitProgress(netExpense, totalExpense, validAbonos, monthTx);
+      // Actualizar botones de barra activa
+      const tabNormal = document.getElementById('tabBarNormal');
+      const tabCat = document.getElementById('tabBarCategories');
+      if (tabNormal && tabCat) {
+        if (barMode === 'normal') {
+          tabNormal.className = 'py-1.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-slate-900 border border-slate-200/80';
+          tabCat.className = 'py-1.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition';
+        } else {
+          tabNormal.className = 'py-1.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-1.5 text-slate-500 hover:text-slate-800 transition';
+          tabCat.className = 'py-1.5 rounded-lg font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow bg-white text-slate-900 border border-slate-200/80';
+        }
+      }
+
+      // Actualizar Límite y Barra
+      updateLimitProgress(netExpense, totalExpense, validRefunds, monthTx);
 
       // Actualizar Gasto Diario Seguro (Burn Rate)
       updateDailyBurn(netExpense);
@@ -719,7 +747,7 @@
     }
 
     // 6. GESTIÓN DEL LÍMITE Y BARRA (SÓLIDA O POR CATEGORÍAS)
-    function updateLimitProgress(netExpense, totalExpense, validAbonos, monthTx) {
+    function updateLimitProgress(netExpense, totalExpense, validRefunds, monthTx) {
       document.getElementById('limitBudgetLabel').innerText = formatCLP(monthlyLimit);
       
       const pct = monthlyLimit > 0 ? (netExpense / monthlyLimit) * 100 : 0;
@@ -733,22 +761,11 @@
       const discountNote = document.getElementById('limitDiscountNote');
       const discountAmount = document.getElementById('limitDiscountAmount');
       const legend = document.getElementById('limitCategoryLegend');
-      const barModeIcon = document.getElementById('barModeIcon');
-      const barModeText = document.getElementById('barModeText');
 
-      // Actualizar botón de modo de barra
-      if (barMode === 'categories') {
-        barModeIcon.innerText = '🟩';
-        barModeText.innerText = 'Barra consolidada';
-      } else {
-        barModeIcon.innerText = '📊';
-        barModeText.innerText = 'Ver categorías';
-      }
-
-      // Mostrar nota de descuento si hay abonos válidos de terceros
-      if (validAbonos > 0) {
+      // Mostrar nota si hay devoluciones registradas
+      if (validRefunds > 0) {
         discountNote.classList.remove('hidden');
-        discountAmount.innerText = `-${formatCLP(validAbonos)}`;
+        discountAmount.innerText = `-${formatCLP(validRefunds)}`;
         pctLabel.innerHTML = `<strong>${Math.round(pct)}%</strong> consumido (Neto: ${formatCLP(netExpense)})`;
       } else {
         discountNote.classList.add('hidden');
@@ -757,7 +774,7 @@
 
       const remaining = monthlyLimit - netExpense;
 
-      // RENDERIZADO DE LA BARRA SEGÚN EL MODO
+      // RENDERIZADO DE LA BARRA
       if (barMode === 'normal') {
         // MODO 1: Barra Sólida Consolidada
         legend.classList.add('hidden');
@@ -769,7 +786,7 @@
           <div id="limitProgressBar" class="${barColor} h-full rounded-full transition-all duration-500" style="width: ${clampedPct}%"></div>
         `;
       } else {
-        // MODO 2: Barra distribuida por Categorías
+        // MODO 2: Barra por Categorías
         legend.classList.remove('hidden');
 
         // Agrupar gastos por categoría
@@ -778,19 +795,24 @@
           expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
         });
 
-        const catKeys = Object.keys(expensesByCategory);
-        if (catKeys.length === 0) {
+        // Descontar devoluciones a su categoría respectiva si aplica
+        monthTx.filter(t => t.type === 'ingreso' && (t.isFamilyFriendRefund || t.isThirdPartyAbono)).forEach(t => {
+          if (expensesByCategory[t.category]) {
+            expensesByCategory[t.category] = Math.max(0, expensesByCategory[t.category] - t.amount);
+          }
+        });
+
+        const activeCategories = CATEGORIES.filter(c => (expensesByCategory[c.id] || 0) > 0);
+
+        if (activeCategories.length === 0) {
           barContainer.innerHTML = `<div class="bg-slate-200 h-full w-full rounded-full"></div>`;
-          legend.innerHTML = `<span class="text-slate-400">Sin gastos este mes para desglosar.</span>`;
+          legend.innerHTML = `<span class="text-slate-400 text-xs">Sin gastos activos este mes para desglosar.</span>`;
         } else {
-          // Renderizar segmentos proporcionales en la barra
           let segmentsHtml = '';
           let legendHtml = '';
 
-          catKeys.forEach(catId => {
-            const cat = CATEGORIES.find(c => c.id === catId) || { label: 'Otros', color: '#64748B', icon: '📌' };
-            const catAmount = expensesByCategory[catId];
-            // Proporción respecto al límite mensual
+          activeCategories.forEach(cat => {
+            const catAmount = expensesByCategory[cat.id];
             const segmentPct = monthlyLimit > 0 ? (catAmount / monthlyLimit) * 100 : 0;
             const clampedSegmentPct = Math.min(segmentPct, 100);
 
@@ -801,7 +823,7 @@
             `;
 
             legendHtml += `
-              <span class="inline-flex items-center space-x-1 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200 text-slate-700 font-medium">
+              <span class="inline-flex items-center space-x-1 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200 text-slate-700 font-semibold text-[10px]">
                 <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>
                 <span>${cat.icon} ${cat.label}: <strong>${formatCLP(catAmount)}</strong></span>
               </span>
@@ -813,12 +835,12 @@
         }
       }
 
-      // ESTADO DE ALERTA ROJA SI SUPERA EL 100%
+      // ALERTA ROJA SI SUPERA EL 100%
       if (pct >= 100) {
         section.classList.add('limit-exceeded-alert');
         alertBanner.classList.remove('hidden');
         const excess = Math.abs(remaining);
-        alertMsg.innerText = `Has sobrepasado tu límite mensual por ${formatCLP(excess)}. ¡Controla tus próximas salidas!`;
+        alertMsg.innerText = `Has sobrepasado tu límite mensual neto por ${formatCLP(excess)}. ¡Controla tus próximas salidas!`;
         remainingLabel.className = 'font-bold text-red-600';
         remainingLabel.innerText = `Excedido por ${formatCLP(excess)}`;
       } else if (pct >= 80) {
@@ -863,12 +885,12 @@
         const sign = isExpense ? '-' : '+';
         const colorClass = isExpense ? 'text-rose-600' : 'text-emerald-600';
 
-        // Badge para cuentas divididas pendientes
-        let splitBadge = '';
+        // Badges informativos
+        let extraBadge = '';
         if (t.splitData && !t.splitData.resolved) {
-          splitBadge = `<span class="inline-block mt-0.5 text-[9px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">👥 Te deben ${formatCLP(t.splitData.pending)}</span>`;
-        } else if (t.isThirdPartyAbono) {
-          splitBadge = `<span class="inline-block mt-0.5 text-[9px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.2 rounded border border-teal-200">🤝 Abono tercero</span>`;
+          extraBadge = `<span class="inline-block mt-0.5 text-[9px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">👥 Te deben ${formatCLP(t.splitData.pending)}</span>`;
+        } else if (t.isFamilyFriendRefund) {
+          extraBadge = `<span class="inline-block mt-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">🤝 Devolución</span>`;
         }
 
         return `
@@ -880,7 +902,7 @@
               <div>
                 <h4 class="text-sm font-bold text-slate-800 leading-tight">${escapeHtml(t.description)}</h4>
                 <p class="text-[11px] text-slate-400 mt-0.5">${cat.label} • ${dateFormatted}</p>
-                ${splitBadge}
+                ${extraBadge}
               </div>
             </div>
             <div class="text-right">
@@ -917,8 +939,16 @@
       document.getElementById('modalDate').innerText = dateObj.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }) + ' a las ' + dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
       
       const badge = document.getElementById('modalTypeBadge');
-      badge.innerText = isExpense ? 'Gasto' : (tx.isThirdPartyAbono ? 'Ingreso (Abono Tercero)' : 'Ingreso General');
-      badge.className = isExpense ? 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-rose-100 text-rose-700' : 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-100 text-emerald-700';
+      if (isExpense) {
+        badge.innerText = 'Gasto';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-rose-100 text-rose-700';
+      } else if (tx.isFamilyFriendRefund) {
+        badge.innerText = '🤝 Devolución familiar / amigo';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-100 text-emerald-800';
+      } else {
+        badge.innerText = 'Ingreso General';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-100 text-emerald-700';
+      }
 
       // Calcular porcentaje del gasto total
       const totalExpense = transactions.filter(t => t.type === 'gasto').reduce((acc, t) => acc + t.amount, 0);
@@ -957,25 +987,25 @@
       currentViewingTxId = null;
     }
 
-    // REGISTRAR COBRO DE CUENTA DIVIDIDA (ABONO DE TERCERO)
+    // REGISTRAR COBRO DE CUENTA DIVIDIDA (DEVOLUCIÓN FAMILIAR / AMIGO)
     function resolveCurrentSplitDebt() {
       const tx = transactions.find(t => t.id === currentViewingTxId);
       if (!tx || !tx.splitData || tx.splitData.resolved) return;
 
       const pendingAmount = tx.splitData.pending;
 
-      // 1. Crear la transacción de abono de tercero
-      const abonoTx = {
+      // 1. Crear la transacción de devolución familiar / amigo con la misma categoría de la salida
+      const refundTx = {
         id: Date.now().toString(),
         type: 'ingreso',
         amount: pendingAmount,
-        description: `Abono amigos: ${tx.description}`,
-        category: 'abono',
-        isThirdPartyAbono: true,
+        description: `Devolución cuenta: ${tx.description}`,
+        category: tx.category,
+        isFamilyFriendRefund: true,
         timestamp: new Date().toISOString()
       };
 
-      transactions.unshift(abonoTx);
+      transactions.unshift(refundTx);
 
       // 2. Marcar la cuenta dividida como resuelta
       tx.splitData.resolved = true;
@@ -984,7 +1014,7 @@
       closeDetailModal();
       updateDashboard();
 
-      alert(`¡Genial! Se registró el abono de ${formatCLP(pendingAmount)}. La barrita de límite mensual retrocedió.`);
+      alert(`¡Listo! Se registró la devolución de ${formatCLP(pendingAmount)}. La barrita verde retrocedió.`);
     }
 
     function deleteCurrentTx() {
