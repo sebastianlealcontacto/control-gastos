@@ -119,6 +119,18 @@
             </div>
           </div>
         </div>
+
+        <!-- Resumen Deudas Amigos en Header -->
+        <div onclick="scrollToFriendsSection()" class="mt-3 pt-2.5 border-t border-white/15 flex items-center justify-between text-[11px] cursor-pointer hover:bg-white/10 p-1 rounded-lg transition" title="Ver cuentas con amigos">
+          <span class="text-orange-100 font-semibold flex items-center space-x-1">
+            <span>🤝</span>
+            <span>Cuentas con Amigos:</span>
+          </span>
+          <div class="flex items-center space-x-1.5 font-bold">
+            <span class="bg-purple-900/50 text-purple-200 border border-purple-400/30 px-2 py-0.5 rounded-full" id="headerMeDebenDisplay">Te deben: $ 0</span>
+            <span class="bg-rose-900/50 text-rose-200 border border-rose-400/30 px-2 py-0.5 rounded-full" id="headerYoDeboDisplay">Debes: $ 0</span>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -314,6 +326,51 @@
         </form>
       </section>
 
+      <!-- SECCIÓN: CUENTAS ENTRE AMIGOS (DEUDAS Y PRÉSTAMOS ACUMULATIVOS) -->
+      <section id="friendsSection" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-base">🤝</span>
+            <div>
+              <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Cuentas entre Amigos</h2>
+              <p class="text-[10px] text-slate-400">Permanente entre meses hasta pagarse o condonarse</p>
+            </div>
+          </div>
+          <button type="button" onclick="openNewDebtModal()" class="text-xs bg-[#ED6D00]/10 hover:bg-[#ED6D00]/20 text-[#ED6D00] font-bold px-2.5 py-1.5 rounded-xl transition flex items-center space-x-1 active:scale-95 shadow-sm">
+            <span>+ Anotar Deuda</span>
+          </button>
+        </div>
+
+        <!-- Selector de pestaña: Me Deben vs Yo Debo -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+          <button type="button" id="tabBtnMeDeben" onclick="setDebtTab('me_deben')" class="py-2 rounded-lg font-bold text-xs flex flex-col items-center justify-center transition shadow bg-white text-purple-800">
+            <div class="flex items-center space-x-1">
+              <span>📥</span>
+              <span>Me Deben (Cobrar)</span>
+            </div>
+            <span id="tabMeDebenAmount" class="text-xs font-black text-purple-700 mt-0.5">$ 0</span>
+          </button>
+          <button type="button" id="tabBtnYoDebo" onclick="setDebtTab('yo_debo')" class="py-2 rounded-lg font-semibold text-xs flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition">
+            <div class="flex items-center space-x-1">
+              <span>📤</span>
+              <span>Yo Debo (Pagar)</span>
+            </div>
+            <span id="tabYoDeboAmount" class="text-xs font-black text-rose-600 mt-0.5">$ 0</span>
+          </button>
+        </div>
+
+        <!-- Lista de Cuentas Activas -->
+        <div id="debtList" class="space-y-2 pt-1 max-h-72 overflow-y-auto no-scrollbar">
+          <!-- Renderizado dinámico -->
+        </div>
+
+        <!-- Estado vacío de cuentas -->
+        <div id="debtEmptyState" class="hidden py-5 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          <p id="debtEmptyMessage" class="font-medium">No tienes cuentas pendientes en esta lista.</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Toca «+ Anotar Deuda» o usa Dividir Cuenta en tus gastos.</p>
+        </div>
+      </section>
+
       <!-- HISTORIAL DE MOVIMIENTOS RECIENTES -->
       <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
         <div class="flex items-center justify-between mb-3">
@@ -346,14 +403,24 @@
       </section>
 
       <!-- BOTONES DE EXPORTAR Y RESPALDO -->
-      <section class="flex justify-between items-center px-2 py-1 text-xs text-slate-400">
-        <button onclick="exportData()" class="hover:text-slate-600 flex items-center space-x-1">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-          </svg>
-          <span>Exportar Respaldo</span>
-        </button>
-        <button onclick="resetCurrentMonth()" class="hover:text-rose-500 transition">Limpiar este mes</button>
+      <section class="flex flex-wrap items-center justify-between gap-2 px-2 py-1 text-xs text-slate-400">
+        <div class="flex items-center space-x-3">
+          <button type="button" onclick="exportData()" class="hover:text-slate-600 flex items-center space-x-1" title="Descargar copia de seguridad en JSON">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <span>Exportar</span>
+          </button>
+          <span>•</span>
+          <label class="hover:text-slate-600 flex items-center space-x-1 cursor-pointer" title="Cargar archivo JSON de respaldo">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"/>
+            </svg>
+            <span>Restaurar</span>
+            <input type="file" id="importFileInput" accept=".json" onchange="importData(event)" class="hidden">
+          </label>
+        </div>
+        <button type="button" onclick="resetCurrentMonth()" class="hover:text-rose-500 transition">Limpiar este mes</button>
       </section>
 
     </main>
@@ -460,6 +527,106 @@
       </div>
     </div>
 
+    <!-- MODAL PARA ANOTAR NUEVA CUENTA CON AMIGO -->
+    <div id="newDebtModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-base font-bold text-slate-900">Anotar Cuenta con Amigo</h3>
+          <button onclick="closeNewDebtModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+        </div>
+
+        <!-- Tipo: Me deben vs Yo debo -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+          <button type="button" id="btnDebtTypeMeDeben" onclick="setNewDebtType('me_deben')" class="py-2 rounded-lg font-bold text-xs bg-white text-purple-800 shadow">
+            📥 Me deben
+          </button>
+          <button type="button" id="btnDebtTypeYoDebo" onclick="setNewDebtType('yo_debo')" class="py-2 rounded-lg font-semibold text-xs text-slate-500">
+            📤 Yo debo
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Nombre del amigo / grupo</label>
+          <input type="text" id="newDebtPersonInput" placeholder="Ej: Matías, Juan, Vale..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#ED6D00]">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Monto en Pesos (CLP)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+            <input type="text" id="newDebtAmountInput" inputmode="numeric" placeholder="7.000" oninput="formatAmountInput(this)" class="w-full pl-7 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#ED6D00]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Motivo / Detalle</label>
+          <input type="text" id="newDebtDescInput" placeholder="Ej: Me pagó el Uber, Asado noviembre..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#ED6D00]">
+        </div>
+
+        <div class="flex space-x-2 pt-2">
+          <button onclick="saveNewDebt()" class="flex-1 bg-[#ED6D00] text-white py-2.5 rounded-xl font-bold text-xs shadow">Guardar Cuenta</button>
+          <button onclick="closeNewDebtModal()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ABONAR / COBRAR DEUDA (PARCIAL, TOTAL O COSTO HUNDIDO) -->
+    <div id="debtPaymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span id="debtPayBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-purple-100 text-purple-800">Cobro</span>
+            <h3 id="debtPayTitle" class="text-base font-bold text-slate-900 mt-1">Registrar Pago</h3>
+          </div>
+          <button onclick="closeDebtPaymentModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+        </div>
+
+        <!-- Info de la deuda -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs space-y-1">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Amigo / Motivo:</span>
+            <span id="debtPayPersonDesc" class="font-bold text-slate-800 text-right">Matías (Asado)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Total pendiente actual:</span>
+            <span id="debtPayRemainingLabel" class="font-black text-slate-900">$ 7.000</span>
+          </div>
+        </div>
+
+        <!-- Input Monto del Abono -->
+        <div>
+          <label id="debtPayAmountLabel" class="block text-[11px] font-bold text-slate-500 uppercase mb-1">¿Cuánto se abona hoy? (CLP)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+            <input type="text" id="debtPayAmountInput" inputmode="numeric" placeholder="7.000" oninput="formatAmountInput(this); updateDebtPayCalculations();" class="w-full pl-7 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#ED6D00]">
+          </div>
+          <p id="debtPayRemainingPreview" class="text-[11px] text-slate-500 mt-1 font-medium">Quedará pendiente: $ 0</p>
+        </div>
+
+        <!-- Opción Costo Hundido (Solo para Me Deben cuando queda diferencia) -->
+        <div id="debtSunkCostContainer" class="hidden p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+          <label class="flex items-start space-x-2 cursor-pointer">
+            <input type="checkbox" id="checkSunkCost" class="mt-0.5 w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500">
+            <span class="text-[11px] text-amber-800 leading-tight">
+              <strong>Dar por saldada la diferencia como Costo Hundido</strong> (ej: faltaron $200 o no te van a pagar más. Se cierra la deuda y se asume como gasto tuyo definitivo).
+            </span>
+          </label>
+        </div>
+
+        <!-- Nota para Yo Debo -->
+        <div id="debtYoDeboNote" class="hidden p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[11px] text-rose-800 font-medium">
+          ℹ️ Este pago se registrará automáticamente como un <strong>Gasto de tu mes actual</strong> porque el dinero sale hoy de tu cuenta.
+        </div>
+
+        <div class="flex space-x-2 pt-2">
+          <button id="btnConfirmDebtPayment" onclick="confirmDebtPayment()" class="flex-1 bg-[#ED6D00] text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-1">
+            <span>Confirmar</span>
+          </button>
+          <button onclick="closeDebtPaymentModal()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- LÓGICA JAVASCRIPT INTEGRADA -->
@@ -471,6 +638,7 @@
       { id: 'cuentas', label: 'Cuentas / Luz / Agua', icon: '💡', color: '#EAB308' },
       { id: 'hogar', label: 'Hogar', icon: '🏠', color: '#10B981' },
       { id: 'ocio', label: 'Ocio / Salidas', icon: '🍔', color: '#EC4899' },
+      { id: 'amigos', label: 'Deudas / Amigos', icon: '🤝', color: '#8B5CF6' },
       { id: 'salud', label: 'Salud / Farmacia', icon: '💊', color: '#EF4444' },
       { id: 'otros', label: 'Otros', icon: '📌', color: '#64748B' }
     ];
@@ -483,6 +651,12 @@
     let isSplitBillOpen = false;
     let splitPeopleCount = 2;
 
+    // Cuentas entre amigos y deudas permanentes
+    let friendDebts = JSON.parse(localStorage.getItem('be_friend_debts') || '[]');
+    let currentDebtTab = 'me_deben'; // 'me_deben' | 'yo_debo'
+    let newDebtType = 'me_deben';
+    let currentPaymentDebtId = null;
+
     // Almacenamiento local
     let transactions = JSON.parse(localStorage.getItem('be_transactions') || '[]');
     let monthlyLimit = parseInt(localStorage.getItem('be_monthly_limit') || '400000');
@@ -491,7 +665,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderCategoryPills();
       updateDashboard();
+      renderFriendDebts();
       initServiceWorker();
+      requestPersistentStorage();
     });
 
     // Formateador de moneda Chilena (CLP sin decimales, con puntos)
@@ -629,15 +805,18 @@
 
       // Información de Cuenta Dividida si aplica en gasto
       let splitData = null;
+      let linkedDebtId = null;
       if (currentType === 'gasto' && isSplitBillOpen) {
         const myShare = Math.round(amount / splitPeopleCount);
         const pending = Math.max(0, amount - myShare);
         const shouldRecordPending = document.getElementById('checkRecordSplitPending').checked;
+        linkedDebtId = shouldRecordPending ? 'debt_' + Date.now() : null;
         splitData = {
           people: splitPeopleCount,
           myShare: myShare,
           pending: pending,
-          resolved: !shouldRecordPending
+          resolved: !shouldRecordPending,
+          linkedDebtId: linkedDebtId
         };
       }
 
@@ -654,6 +833,25 @@
 
       transactions.unshift(newTx);
       saveTransactions();
+
+      // Si se configuró cobro pendiente de amigos, crear la cuenta en el libro de deudas
+      if (splitData && !splitData.resolved && linkedDebtId) {
+        friendDebts.unshift({
+          id: linkedDebtId,
+          type: 'me_deben',
+          person: `Amigos (${splitPeopleCount} pers.)`,
+          description: desc,
+          originalAmount: splitData.pending,
+          remainingAmount: splitData.pending,
+          paidAmount: 0,
+          createdAt: newTx.timestamp,
+          resolved: false,
+          sunkCost: false,
+          linkedTxId: newTx.id
+        });
+        saveFriendDebts();
+        renderFriendDebts();
+      }
 
       // Limpiar formulario y cerrar split si estaba abierto
       document.getElementById('amountInput').value = '';
@@ -992,29 +1190,29 @@
       const tx = transactions.find(t => t.id === currentViewingTxId);
       if (!tx || !tx.splitData || tx.splitData.resolved) return;
 
-      const pendingAmount = tx.splitData.pending;
-
-      // 1. Crear la transacción de devolución familiar / amigo con la misma categoría de la salida
-      const refundTx = {
-        id: Date.now().toString(),
-        type: 'ingreso',
-        amount: pendingAmount,
-        description: `Devolución cuenta: ${tx.description}`,
-        category: tx.category,
-        isFamilyFriendRefund: true,
-        timestamp: new Date().toISOString()
-      };
-
-      transactions.unshift(refundTx);
-
-      // 2. Marcar la cuenta dividida como resuelta
-      tx.splitData.resolved = true;
-      saveTransactions();
+      // Buscar si ya tiene deuda vinculada en friendDebts
+      let debt = friendDebts.find(d => d.linkedTxId === tx.id || (tx.splitData.linkedDebtId && d.id === tx.splitData.linkedDebtId));
+      if (!debt) {
+        debt = {
+          id: 'debt_' + Date.now(),
+          type: 'me_deben',
+          person: 'Amigos (' + (tx.splitData.people || 2) + ' pers.)',
+          description: tx.description,
+          originalAmount: tx.splitData.pending,
+          remainingAmount: tx.splitData.pending,
+          paidAmount: 0,
+          createdAt: tx.timestamp || new Date().toISOString(),
+          resolved: false,
+          sunkCost: false,
+          linkedTxId: tx.id
+        };
+        friendDebts.unshift(debt);
+        saveFriendDebts();
+        renderFriendDebts();
+      }
 
       closeDetailModal();
-      updateDashboard();
-
-      alert(`¡Listo! Se registró la devolución de ${formatCLP(pendingAmount)}. La barrita verde retrocedió.`);
+      openDebtPaymentModal(debt.id);
     }
 
     function deleteCurrentTx() {
@@ -1027,7 +1225,354 @@
       }
     }
 
-    // 8. CONFIGURACIÓN DEL LÍMITE
+    // 9. GESTIÓN DE CUENTAS ENTRE AMIGOS (DEUDAS Y PRÉSTAMOS)
+    function scrollToFriendsSection() {
+      const sec = document.getElementById('friendsSection');
+      if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function setDebtTab(tab) {
+      currentDebtTab = tab;
+      renderFriendDebts();
+    }
+
+    function saveFriendDebts() {
+      localStorage.setItem('be_friend_debts', JSON.stringify(friendDebts));
+    }
+
+    function renderFriendDebts() {
+      const listContainer = document.getElementById('debtList');
+      const emptyState = document.getElementById('debtEmptyState');
+      const emptyMsg = document.getElementById('debtEmptyMessage');
+
+      const totalMeDeben = friendDebts
+        .filter(d => d.type === 'me_deben' && !d.resolved)
+        .reduce((acc, d) => acc + d.remainingAmount, 0);
+
+      const totalYoDebo = friendDebts
+        .filter(d => d.type === 'yo_debo' && !d.resolved)
+        .reduce((acc, d) => acc + d.remainingAmount, 0);
+
+      // Actualizar cabecera de la app
+      document.getElementById('headerMeDebenDisplay').innerText = `Te deben: ${formatCLP(totalMeDeben)}`;
+      document.getElementById('headerYoDeboDisplay').innerText = `Debes: ${formatCLP(totalYoDebo)}`;
+
+      // Actualizar selector de pestañas
+      document.getElementById('tabMeDebenAmount').innerText = formatCLP(totalMeDeben);
+      document.getElementById('tabYoDeboAmount').innerText = formatCLP(totalYoDebo);
+
+      const tabBtnMe = document.getElementById('tabBtnMeDeben');
+      const tabBtnYo = document.getElementById('tabBtnYoDebo');
+
+      if (currentDebtTab === 'me_deben') {
+        tabBtnMe.className = 'py-2 rounded-lg font-bold text-xs flex flex-col items-center justify-center transition shadow bg-white text-purple-800';
+        tabBtnYo.className = 'py-2 rounded-lg font-semibold text-xs flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition';
+      } else {
+        tabBtnMe.className = 'py-2 rounded-lg font-semibold text-xs flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition';
+        tabBtnYo.className = 'py-2 rounded-lg font-bold text-xs flex flex-col items-center justify-center transition shadow bg-white text-rose-700';
+      }
+
+      // Filtrar items pendientes según la pestaña activa
+      const activeDebts = friendDebts.filter(d => d.type === currentDebtTab && !d.resolved);
+
+      if (activeDebts.length === 0) {
+        listContainer.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        emptyMsg.innerText = currentDebtTab === 'me_deben' 
+          ? '¡Nadie te debe dinero pendiente!' 
+          : '¡No tienes deudas pendientes con amigos!';
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      listContainer.innerHTML = activeDebts.map(d => {
+        const dateObj = new Date(d.createdAt);
+        const dateStr = dateObj.toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
+        const hasPartialPayment = (d.paidAmount || 0) > 0;
+
+        let partialNote = '';
+        if (hasPartialPayment) {
+          partialNote = `<span class="block text-[10px] text-emerald-600 font-semibold">Abonado: ${formatCLP(d.paidAmount)} de ${formatCLP(d.originalAmount)}</span>`;
+        }
+
+        const isMeDeben = d.type === 'me_deben';
+
+        return `
+          <div class="p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/80 flex flex-col space-y-2 transition">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full ${isMeDeben ? 'bg-purple-100 text-purple-700' : 'bg-rose-100 text-rose-700'} flex items-center justify-center font-bold text-xs">
+                  ${isMeDeben ? '📥' : '📤'}
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 leading-tight">${escapeHtml(d.person)}</h4>
+                  <p class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(d.description)} • <span class="text-slate-400">${dateStr}</span></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-black ${isMeDeben ? 'text-purple-900' : 'text-rose-700'}">${formatCLP(d.remainingAmount)}</span>
+                ${partialNote}
+              </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex items-center justify-end space-x-2 pt-1 border-t border-slate-200/60">
+              ${isMeDeben ? `
+                <button type="button" onclick="markDebtAsSunkCost('${d.id}')" class="text-[10px] text-slate-400 hover:text-amber-600 px-2 py-1 rounded transition" title="Cerrar si no te pagarán">
+                  ❌ Costo hundido
+                </button>
+                <button type="button" onclick="openDebtPaymentModal('${d.id}')" class="text-xs bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1 transition">
+                  <span>💵 Cobrar / Abonar</span>
+                </button>
+              ` : `
+                <button type="button" onclick="deleteDebt('${d.id}')" class="text-[10px] text-slate-400 hover:text-rose-600 px-2 py-1 rounded transition">
+                  🗑️ Borrar
+                </button>
+                <button type="button" onclick="openDebtPaymentModal('${d.id}')" class="text-xs bg-[#ED6D00] hover:bg-[#D95B00] active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1 transition">
+                  <span>💳 Pagar / Abonar</span>
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Modal Anotar Nueva Deuda
+    function openNewDebtModal() {
+      document.getElementById('newDebtPersonInput').value = '';
+      document.getElementById('newDebtAmountInput').value = '';
+      document.getElementById('newDebtDescInput').value = '';
+      setNewDebtType(currentDebtTab);
+      document.getElementById('newDebtModal').classList.remove('hidden');
+    }
+
+    function closeNewDebtModal() {
+      document.getElementById('newDebtModal').classList.add('hidden');
+    }
+
+    function setNewDebtType(type) {
+      newDebtType = type;
+      const btnMe = document.getElementById('btnDebtTypeMeDeben');
+      const btnYo = document.getElementById('btnDebtTypeYoDebo');
+      if (type === 'me_deben') {
+        btnMe.className = 'py-2 rounded-lg font-bold text-xs bg-white text-purple-800 shadow';
+        btnYo.className = 'py-2 rounded-lg font-semibold text-xs text-slate-500';
+      } else {
+        btnMe.className = 'py-2 rounded-lg font-semibold text-xs text-slate-500';
+        btnYo.className = 'py-2 rounded-lg font-bold text-xs bg-white text-rose-700 shadow';
+      }
+    }
+
+    function saveNewDebt() {
+      const person = document.getElementById('newDebtPersonInput').value.trim();
+      const amount = parseAmountFromInput(document.getElementById('newDebtAmountInput').value);
+      const desc = document.getElementById('newDebtDescInput').value.trim();
+
+      if (!person || amount <= 0 || !desc) {
+        alert('Por favor completa el nombre, monto y motivo.');
+        return;
+      }
+
+      const debt = {
+        id: 'debt_' + Date.now(),
+        type: newDebtType,
+        person: person,
+        description: desc,
+        originalAmount: amount,
+        remainingAmount: amount,
+        paidAmount: 0,
+        createdAt: new Date().toISOString(),
+        resolved: false,
+        sunkCost: false,
+        linkedTxId: null
+      };
+
+      friendDebts.unshift(debt);
+      saveFriendDebts();
+      closeNewDebtModal();
+      currentDebtTab = newDebtType;
+      renderFriendDebts();
+    }
+
+    // Modal Abonar / Cobrar Deuda (Parcial, Total o Costo Hundido)
+    function openDebtPaymentModal(debtId) {
+      const debt = friendDebts.find(d => d.id === debtId);
+      if (!debt) return;
+      currentPaymentDebtId = debtId;
+
+      const isMeDeben = debt.type === 'me_deben';
+      const badge = document.getElementById('debtPayBadge');
+      const title = document.getElementById('debtPayTitle');
+      const label = document.getElementById('debtPayAmountLabel');
+      const sunkBox = document.getElementById('debtSunkCostContainer');
+      const checkSunk = document.getElementById('checkSunkCost');
+      const yoDeboNote = document.getElementById('debtYoDeboNote');
+      const btnConfirm = document.getElementById('btnConfirmDebtPayment');
+
+      if (isMeDeben) {
+        badge.innerText = 'Cobro';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-purple-100 text-purple-800';
+        title.innerText = 'Registrar Pago de Amigo';
+        label.innerText = '¿Cuánto te pagaron hoy? (CLP)';
+        btnConfirm.className = 'flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-1';
+        yoDeboNote.classList.add('hidden');
+      } else {
+        badge.innerText = 'Pago';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-rose-100 text-rose-800';
+        title.innerText = 'Pagar Deuda a Amigo';
+        label.innerText = '¿Cuánto vas a pagar hoy? (CLP)';
+        btnConfirm.className = 'flex-1 bg-[#ED6D00] hover:bg-[#D95B00] text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-1';
+        yoDeboNote.classList.remove('hidden');
+        sunkBox.classList.add('hidden');
+      }
+
+      if (checkSunk) checkSunk.checked = false;
+      document.getElementById('debtPayPersonDesc').innerText = `${debt.person} (${debt.description})`;
+      document.getElementById('debtPayRemainingLabel').innerText = formatCLP(debt.remainingAmount);
+      
+      const input = document.getElementById('debtPayAmountInput');
+      input.value = debt.remainingAmount.toLocaleString('es-CL');
+      updateDebtPayCalculations();
+
+      document.getElementById('debtPaymentModal').classList.remove('hidden');
+    }
+
+    function closeDebtPaymentModal() {
+      document.getElementById('debtPaymentModal').classList.add('hidden');
+      currentPaymentDebtId = null;
+    }
+
+    function updateDebtPayCalculations() {
+      const debt = friendDebts.find(d => d.id === currentPaymentDebtId);
+      if (!debt) return;
+
+      const inputVal = parseAmountFromInput(document.getElementById('debtPayAmountInput').value);
+      const remainingPreview = Math.max(0, debt.remainingAmount - inputVal);
+      const previewEl = document.getElementById('debtPayRemainingPreview');
+      const sunkBox = document.getElementById('debtSunkCostContainer');
+
+      previewEl.innerText = `Saldo que quedará pendiente: ${formatCLP(remainingPreview)}`;
+
+      if (debt.type === 'me_deben' && remainingPreview > 0) {
+        sunkBox.classList.remove('hidden');
+      } else {
+        sunkBox.classList.add('hidden');
+      }
+    }
+
+    function confirmDebtPayment() {
+      const debt = friendDebts.find(d => d.id === currentPaymentDebtId);
+      if (!debt) return;
+
+      const inputVal = parseAmountFromInput(document.getElementById('debtPayAmountInput').value);
+      if (inputVal <= 0) {
+        alert('Por favor ingresa un monto válido a pagar/abonar.');
+        return;
+      }
+
+      if (inputVal > debt.remainingAmount) {
+        alert(`El monto no puede superar el saldo pendiente (${formatCLP(debt.remainingAmount)}).`);
+        return;
+      }
+
+      const amountPaid = inputVal;
+      const isMeDeben = debt.type === 'me_deben';
+      const checkSunk = document.getElementById('checkSunkCost');
+      const isSunkCostChecked = isMeDeben && checkSunk && checkSunk.checked;
+
+      // Actualizar saldos de la deuda
+      debt.paidAmount = (debt.paidAmount || 0) + amountPaid;
+      debt.remainingAmount -= amountPaid;
+
+      if (isMeDeben) {
+        // ME DEBEN: Entra dinero a mi cuenta -> Se registra como Ingreso (Devolución familiar / amigo)
+        // Esto reduce el consumo de la barrita verde en el mes actual (gasto neto)
+        const refundTx = {
+          id: Date.now().toString(),
+          type: 'ingreso',
+          amount: amountPaid,
+          description: `Devolución recibida: ${debt.person} (${debt.description})`,
+          category: 'amigos',
+          isFamilyFriendRefund: true,
+          timestamp: new Date().toISOString()
+        };
+        transactions.unshift(refundTx);
+
+        // Si se salda por completo o se marca como costo hundido
+        if (debt.remainingAmount === 0 || isSunkCostChecked) {
+          debt.resolved = true;
+          if (isSunkCostChecked && debt.remainingAmount > 0) {
+            debt.sunkCost = true;
+          }
+        }
+
+        // Si venía vinculado a una transacción con splitData, actualizarla
+        if (debt.linkedTxId) {
+          const linkedTx = transactions.find(t => t.id === debt.linkedTxId);
+          if (linkedTx && linkedTx.splitData) {
+            linkedTx.splitData.pending = debt.remainingAmount;
+            if (debt.resolved) linkedTx.splitData.resolved = true;
+          }
+        }
+      } else {
+        // YO DEBO: Sale dinero de mi bolsillo -> Se registra como Gasto en el mes actual
+        // (porque se está usando dinero del mes en curso para pagar esta deuda pendiente)
+        const expenseTx = {
+          id: Date.now().toString(),
+          type: 'gasto',
+          amount: amountPaid,
+          description: `Pago deuda a ${debt.person} (${debt.description})`,
+          category: 'amigos',
+          timestamp: new Date().toISOString()
+        };
+        transactions.unshift(expenseTx);
+
+        if (debt.remainingAmount === 0) {
+          debt.resolved = true;
+        }
+      }
+
+      saveTransactions();
+      saveFriendDebts();
+      closeDebtPaymentModal();
+      updateDashboard();
+      renderFriendDebts();
+
+      const actionMsg = isMeDeben 
+        ? `¡Registrado! Te abonaron ${formatCLP(amountPaid)}. La barrita verde retrocedió en tu mes actual.`
+        : `¡Registrado! Pagaste ${formatCLP(amountPaid)} a ${debt.person}. Se computó como gasto en tu mes actual.`;
+      alert(actionMsg);
+    }
+
+    function markDebtAsSunkCost(debtId) {
+      const debt = friendDebts.find(d => d.id === debtId);
+      if (!debt) return;
+      if (confirm(`¿Dar por cerrado el saldo pendiente de ${formatCLP(debt.remainingAmount)} con ${debt.person} como costo hundido (pérdida asumida por ti)?`)) {
+        debt.resolved = true;
+        debt.sunkCost = true;
+        if (debt.linkedTxId) {
+          const linkedTx = transactions.find(t => t.id === debt.linkedTxId);
+          if (linkedTx && linkedTx.splitData) {
+            linkedTx.splitData.resolved = true;
+          }
+        }
+        saveTransactions();
+        saveFriendDebts();
+        renderFriendDebts();
+        updateDashboard();
+      }
+    }
+
+    function deleteDebt(debtId) {
+      if (confirm('¿Eliminar esta cuenta de la lista?')) {
+        friendDebts = friendDebts.filter(d => d.id !== debtId);
+        saveFriendDebts();
+        renderFriendDebts();
+      }
+    }
+
+    // 10. CONFIGURACIÓN DEL LÍMITE
     function openLimitModal() {
       document.getElementById('limitInput').value = monthlyLimit.toLocaleString('es-CL');
       document.getElementById('limitModal').classList.remove('hidden');
@@ -1049,9 +1594,16 @@
       }
     }
 
-    // 9. RESPALDOS Y LIMPIEZA
+    // 11. RESPALDOS, PERSISTENCIA Y LIMPIEZA
     function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions, null, 2));
+      const backupPayload = {
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        monthlyLimit: monthlyLimit,
+        transactions: transactions,
+        friendDebts: friendDebts
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
       downloadAnchor.setAttribute("download", `gastos_banco_estado_${new Date().toISOString().slice(0, 10)}.json`);
@@ -1060,8 +1612,78 @@
       downloadAnchor.remove();
     }
 
+    function importData(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          let importedTx = [];
+
+          if (Array.isArray(parsed)) {
+            importedTx = parsed;
+          } else if (parsed && Array.isArray(parsed.transactions)) {
+            importedTx = parsed.transactions;
+            if (parsed.monthlyLimit) {
+              monthlyLimit = parseInt(parsed.monthlyLimit, 10);
+              localStorage.setItem('be_monthly_limit', monthlyLimit.toString());
+            }
+            if (parsed.friendDebts && Array.isArray(parsed.friendDebts)) {
+              const existingDebtIds = new Set(friendDebts.map(d => d.id));
+              parsed.friendDebts.forEach(d => {
+                if (!existingDebtIds.has(d.id)) {
+                  friendDebts.push(d);
+                  existingDebtIds.add(d.id);
+                }
+              });
+              saveFriendDebts();
+            }
+          } else {
+            alert('El archivo no parece tener un formato válido de respaldo.');
+            return;
+          }
+
+          if (confirm(`Se encontraron ${importedTx.length} movimientos en el respaldo. ¿Deseas importarlos?`)) {
+            const existingIds = new Set(transactions.map(t => t.id));
+            let addedCount = 0;
+
+            importedTx.forEach(t => {
+              if (!existingIds.has(t.id)) {
+                transactions.push(t);
+                existingIds.add(t.id);
+                addedCount++;
+              }
+            });
+
+            transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            saveTransactions();
+            updateDashboard();
+            renderFriendDebts();
+            alert(`¡Respaldo importado! Se incorporaron ${addedCount} movimientos nuevos.`);
+          }
+        } catch (err) {
+          alert('Error al leer el archivo de respaldo JSON.');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    // Solicitar almacenamiento persistente a iOS / Safari (evita purgas automáticas por inactividad)
+    function requestPersistentStorage() {
+      if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().then(persistent => {
+          if (persistent) {
+            console.log('Almacenamiento persistente garantizado por el sistema.');
+          }
+        }).catch(() => {});
+      }
+    }
+
     function resetCurrentMonth() {
-      if (confirm('¿Deseas reiniciar todos los registros del mes actual? (Esto no se puede deshacer)')) {
+      if (confirm('¿Deseas reiniciar todos los registros del mes actual? (Las cuentas con amigos no se borrarán)')) {
         const now = new Date();
         transactions = transactions.filter(t => {
           const d = new Date(t.timestamp);

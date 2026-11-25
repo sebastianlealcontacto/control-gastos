@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gastos-clp-v2';
+const CACHE_NAME = 'gastos-clp-v3';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
